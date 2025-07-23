@@ -43,7 +43,7 @@ const updateCargoAgente = (id, cargo) => {
     return agente;
 }
 
-const deleteAgente = () => {
+const deleteAgente = (id) => {
     const agenteIndex = agentes.findIndex(a => a.id === id);
 
     return agentes.splice(agenteIndex, 1)[0];
