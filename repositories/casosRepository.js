@@ -40,7 +40,7 @@ const completeUpdateCaso = (id, titulo, descricao, status) => {
 
 // Função que busca o caso com id específico e muda apenas o título
 const updateTituloCaso = (id, titulo) => {
-    const caso = findById(id);
+    const caso = findCasoById(id);
 
     caso.titulo = titulo;
 
@@ -49,7 +49,7 @@ const updateTituloCaso = (id, titulo) => {
 
 // Função que busca o caso com id específico e deleta-o
 const deleteCaso = (id) => {
-    const casoIndex = casos.findIndex(id);
+    const casoIndex = casos.findIndex(c => c.id === id);
 
     return casos.splice(casoIndex, 1)[0];
 }
