@@ -18,18 +18,18 @@ const createCaso = (titulo, descricao, status, agente_id) => {
 }
 
 // Função que retorna todos os casos
-const findAll = () => {
+const findAllCasos = () => {
     return casos;
 }
 
 // Função que retorna um caso específico de acordo com seu id
-const findById = (id) => {
+const findCasoById = (id) => {
     return casos.find(c => c.id === id);
 }
 
 // Função que busca o caso com id específico e muda todos os dados, exceto id's
 const completeUpdateCaso = (id, titulo, descricao, status) => {
-    const caso = findById(id);
+    const caso = findCasoById(id);
     
     caso.titulo = titulo;
     caso.descricao = descricao;
@@ -52,4 +52,13 @@ const deleteCaso = (id) => {
     const casoIndex = casos.findIndex(id);
 
     return casos.splice(casoIndex, 1)[0];
+}
+
+module.exports = {
+    findAllCasos,
+    findCasoById,
+    createCaso,
+    completeUpdateCaso,
+    updateTituloCaso,
+    deleteCaso
 }

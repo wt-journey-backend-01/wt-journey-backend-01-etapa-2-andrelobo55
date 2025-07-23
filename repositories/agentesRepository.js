@@ -15,18 +15,18 @@ const createAgente = (nome, dataDeIncorporacao, cargo) => {
     return novoAgente;
 }
 
-const findAll = () => {
+const findAllAgentes = () => {
     return agentes;
 }
 
-const findById = (id) => {
+const findAgenteById = (id) => {
     const agente = agentes.find(a => a.id === id);
 
     return agente;
 }
 
 const completeUpdateAgente = (id, dataDeIncorporacao, cargo) => {
-    const agente = findById(id);
+    const agente = findAgenteById(id);
 
     agente.dataDeIncorporacao = dataDeIncorporacao;
     agente.cargo = cargo;
@@ -46,4 +46,13 @@ const deleteAgente = () => {
     const agenteIndex = agentes.findIndex(a => a.id === id);
 
     return agentes.splice(agenteIndex, 1)[0];
+}
+
+module.exports = {
+    findAllAgentes,
+    findAgenteById,
+    createAgente,
+    completeUpdateAgente,
+    updateCargoAgente,
+    deleteAgente
 }
