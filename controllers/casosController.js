@@ -15,7 +15,7 @@ const getAllCasos = (req, res, next) => {
     res.status(200).json(casos);
 }
 
-const getCasosById = (req, res, next) => {
+const getCasoById = (req, res, next) => {
     try {
         const { id } = req.params;
         const caso = casosRepository.findCasoById(id);
@@ -137,7 +137,7 @@ const deleteCaso = (req, res, next) => {
 
 module.exports = {
     getAllCasos,
-    getCasosById,
+    getCasoById,
     createCaso,
     completeUpdateCaso,
     updateTituloCaso,
