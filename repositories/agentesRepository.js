@@ -36,7 +36,7 @@ const completeUpdateAgente = (id, nome, dataDeIncorporacao, cargo) => {
 }
 
 const updateCargoAgente = (id, cargo) => {
-    const agente = findById(id);
+    const agente = findAgenteById(id);
 
     agente.cargo = cargo;
 
