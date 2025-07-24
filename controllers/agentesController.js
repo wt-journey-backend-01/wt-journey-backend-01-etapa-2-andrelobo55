@@ -90,9 +90,9 @@ const completeUpdateAgente = (req, res, next) => {
 const updateCargoAgente = (req, res, next) => {
     try {
         const { id } = req.params;
-        const agenteId = agentesRepository.findAgenteById(id);
+        const agente = agentesRepository.findAgenteById(id);
 
-        if (!agenteId) {
+        if (!agente) {
             return next(new APIError(404, "Agente não encontrado"));
         }
 
@@ -102,9 +102,9 @@ const updateCargoAgente = (req, res, next) => {
             return next(new APIError(400, "Campo 'cargo' deve ser preenchido"));
         }
 
-        agentesRepository.updateCargoAgente(agenteId, cargo);
+        agentesRepository.updateCargoAgente(id, cargo);
 
-        res.status(200).json(agenteId);
+        res.status(200).json(agente);
     }
     catch (error) {
         next(error);
