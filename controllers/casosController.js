@@ -58,9 +58,9 @@ const createCaso = (req, res, next) => {
 
         const caso = casosRepository.createCaso(titulo, descricao, status, agente_id);
 
-        res.status(202).json(caso);
+        res.status(201).json(caso);
     } catch (error) {
-        next(next);
+        next(error);
     }
 }
 
