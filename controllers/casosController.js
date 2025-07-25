@@ -73,7 +73,7 @@ const completeUpdateCaso = (req, res, next) => {
             return next(new APIError(404, "Caso não encontrado"));
         }
 
-        const { titulo, descricao, status } = req.body;
+        const { id: idBody, titulo, descricao, status } = req.body;
 
         if (idBody && idBody !== id) {
             return next(new APIError(400, "Não é permitido alterar o campo 'id'"));

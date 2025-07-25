@@ -69,7 +69,7 @@ const completeUpdateAgente = (req, res, next) => {
             return next(new APIError(404, "Agente não encontrado"));
         }
 
-        const { nome, dataDeIncorporacao, cargo } = req.body;
+        const { id: idBody, nome, dataDeIncorporacao, cargo } = req.body;
 
         if (idBody && idBody !== id) {
             return next(new APIError(400, "Não é permitido alterar o campo 'id'"));
