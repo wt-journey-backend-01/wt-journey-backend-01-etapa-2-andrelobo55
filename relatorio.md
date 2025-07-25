@@ -1,72 +1,35 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 6 créditos restantes para usar o sistema de feedback AI.
+Você tem 5 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para andrelobo55:
 
-Nota final: **92.9/100**
+Nota final: **89.1/100**
 
-Olá, andrelobo55! 👋✨
+# Feedback para andrelobo55 🚓✨
 
-Primeiramente, parabéns pelo excelente trabalho! 🎉 Você entregou uma API para o Departamento de Polícia muito bem estruturada, com endpoints completos para agentes e casos, além de validações robustas e tratamento de erros que cobrem várias situações. Isso demonstra um domínio muito bom do Express.js e da arquitetura modular, o que é essencial para projetos escaláveis. 👏
-
----
-
-## 🎯 Pontos Fortes que Merecem Destaque
-
-- Você organizou seu projeto seguindo a arquitetura MVC, com pastas bem definidas para `routes`, `controllers` e `repositories`. Isso facilita muito a manutenção e evolução do código.
-- Os endpoints para `/agentes` e `/casos` estão implementados com todos os métodos HTTP esperados (GET, POST, PUT, PATCH, DELETE).
-- Validações específicas em cada controller estão muito bem feitas, garantindo que os dados recebidos são válidos antes de seguir para a lógica de negócio.
-- O uso da classe `APIError` para encapsular erros com status e mensagem personalizada é um ótimo padrão para tratamento centralizado de erros.
-- Você usou o pacote `uuid` para gerar IDs únicos, o que é uma boa prática para simular dados em memória.
-- Implementou Swagger para documentação, o que é um diferencial para APIs REST.
-- Parabéns por conseguir implementar vários filtros e ordenações (mesmo que alguns ainda possam melhorar), além de mensagens de erro customizadas — isso mostra que você foi além do básico! 🚀
+Olá, André! Que jornada incrível você está trilhando ao construir essa API para o Departamento de Polícia! 🎉 Eu dei uma boa navegada no seu código e quero começar parabenizando você pelo esforço e pela organização que já estão muito boas! Vamos juntos destrinchar o que está brilhando no seu projeto e onde podemos dar aquele upgrade para deixar tudo tinindo? 🚀
 
 ---
 
-## 🔍 Análise Profunda das Oportunidades de Melhoria
+## 🎯 Primeiramente, os grandes acertos que merecem aplausos 👏
 
-### 1. Atualização Completa com PUT permite alterar o campo `id`
+- Você estruturou seu projeto de forma modular, com rotas, controllers e repositories bem separados. Isso é essencial para manter o código organizado e escalável.  
+- O uso do Swagger para documentação está muito bem implementado! Isso mostra cuidado em criar uma API que seja fácil de entender e usar.  
+- Os endpoints básicos para `agentes` e `casos` estão implementados, e você já faz validações importantes, como verificar campos obrigatórios e formatos (ex: data válida e status correto).  
+- O tratamento de erros com uma classe personalizada `APIError` deixa o código mais limpo e organizado.  
+- Você implementou corretamente os métodos PATCH para atualizações parciais, e DELETE está funcionando bem.  
+- Parabéns por implementar filtros e ordenações nos bônus, mesmo que ainda precise de ajustes! Isso mostra que você está buscando ir além do básico, o que é sensacional! 🌟
 
-Percebi que, tanto no repositório de agentes quanto no de casos, o método de atualização completa (`completeUpdateAgente` e `completeUpdateCaso`) permite que o campo `id` seja alterado, o que não deveria acontecer.
+---
 
-Por exemplo, no arquivo `repositories/agentesRepository.js`:
+## 🔍 Agora vamos analisar juntos os pontos que precisam de atenção para deixar sua API ainda mais robusta
 
-```js
-const completeUpdateAgente = (id, nome, dataDeIncorporacao, cargo) => {
-    const agente = findAgenteById(id);
+### 1. Problema fundamental no PUT para atualizar agentes e casos (UPDATE completo)
 
-    agente.nome = nome;
-    agente.dataDeIncorporacao = dataDeIncorporacao;
-    agente.cargo = cargo;
+Eu percebi que os testes relacionados à atualização completa via PUT estão falhando, e ao investigar seu código, achei um detalhe importante que está causando isso.
 
-    return agente;
-}
-```
-
-Aqui, você atualiza o agente encontrado, mas não há proteção para impedir que o `id` seja modificado, porque no controller você recebe os dados e não valida se o `id` foi passado no corpo.
-
-O mesmo acontece em `repositories/casosRepository.js`:
-
-```js
-const completeUpdateCaso = (id, titulo, descricao, status) => {
-    const caso = findCasoById(id);
-    
-    caso.titulo = titulo;
-    caso.descricao = descricao;
-    caso.status = status;
-
-    return caso;
-}
-```
-
-Você não está atualizando o `id` diretamente aqui, mas no controller, se o payload permitir enviar o `id`, ele não está sendo ignorado nem validado.
-
-**Por que isso é um problema?**  
-O `id` é a identidade única do recurso e deve ser imutável. Permitir que ele seja alterado pode causar inconsistências e quebra da integridade dos dados, além de dificultar o rastreamento dos recursos.
-
-**Como corrigir?**  
-No controller, ao receber o corpo da requisição para PUT, faça uma validação explícita para garantir que o campo `id` não esteja presente ou, se estiver, que seja ignorado. Por exemplo, no `completeUpdateAgente`:
+No seu **`controllers/agentesController.js`**, na função `completeUpdateAgente`, você tem este trecho:
 
 ```js
 const completeUpdateAgente = (req, res, next) => {
@@ -78,13 +41,23 @@ const completeUpdateAgente = (req, res, next) => {
             return next(new APIError(404, "Agente não encontrado"));
         }
 
-        const { nome, dataDeIncorporacao, cargo, id: idBody } = req.body;
+        const { nome, dataDeIncorporacao, cargo } = req.body;
 
         if (idBody && idBody !== id) {
             return next(new APIError(400, "Não é permitido alterar o campo 'id'"));
         }
 
-        // continue com as outras validações...
+        if (!nome) {
+            return next(new APIError(400, "Campo 'nome' deve ser preenchido"));
+        }
+
+        if (!dataDeIncorporacao) {
+            return next(new APIError(400, "Campo 'dataDeIncorporacao' deve ser preenchido"));
+        }
+
+        if (!cargo) {
+            return next(new APIError(400, "Campo 'cargo' deve ser preenchido"));
+        }
 
         const agenteAtualizado = agentesRepository.completeUpdateAgente(id, nome, dataDeIncorporacao, cargo);
 
@@ -96,179 +69,167 @@ const completeUpdateAgente = (req, res, next) => {
 }
 ```
 
-Faça algo similar para o `completeUpdateCaso`.
+**O que está faltando aqui?** A variável `idBody` está sendo usada para verificar se o ID no corpo da requisição é diferente do ID da URL, mas você nunca declarou ou atribuiu essa variável. Isso causa que essa verificação nunca funcione, e provavelmente um erro silencioso acontece. O mesmo problema aparece na função `completeUpdateCaso` do seu `casosController.js`.
 
----
-
-### 2. Falha na atualização parcial (PATCH) dos casos
-
-Você mencionou que o teste de atualização parcial do caso com PATCH falhou. Ao analisar seu código, vejo que:
-
-- No arquivo `routes/casosRoutes.js`, o PATCH está registrado assim:
+**Como corrigir?** Você deve extrair o `id` do corpo da requisição para essa comparação. Exemplo:
 
 ```js
-router.patch("/:id", casosController.updateTituloCaso);
+const { id: idBody, nome, dataDeIncorporacao, cargo } = req.body;
 ```
 
-Ou seja, você só permite atualizar o título do caso parcialmente.
-
-Se o teste espera que seja possível atualizar outros campos também (por exemplo, `status` ou `descricao`), seu endpoint atual não suporta essa flexibilidade.
-
-**Por que isso acontece?**  
-Seu controller `updateTituloCaso` só atualiza o título, e o endpoint PATCH está restrito a isso. Portanto, se o teste ou o cliente enviar um PATCH para atualizar outro campo, ele não será tratado.
-
-**Como melhorar?**  
-Você pode criar um método no controller que aceite atualizações parciais para múltiplos campos, validando cada um se estiver presente, e atualizar somente os campos enviados.
-
-Exemplo simples:
+Assim, a verificação faz sentido:
 
 ```js
-const updatePartialCaso = (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const caso = casosRepository.findCasoById(id);
-
-        if (!caso) {
-            return next(new APIError(404, "Caso não encontrado"));
-        }
-
-        const { titulo, descricao, status } = req.body;
-
-        if (titulo !== undefined) {
-            caso.titulo = titulo;
-        }
-
-        if (descricao !== undefined) {
-            caso.descricao = descricao;
-        }
-
-        if (status !== undefined) {
-            if (!['aberto', 'solucionado'].includes(status)) {
-                return next(new APIError(400, "Campo 'status' deve ser 'aberto' ou 'solucionado'"));
-            }
-            caso.status = status;
-        }
-
-        res.status(200).json(caso);
-    } catch (error) {
-        next(error);
-    }
+if (idBody && idBody !== id) {
+    return next(new APIError(400, "Não é permitido alterar o campo 'id'"));
 }
 ```
 
-E no `routes/casosRoutes.js`:
-
-```js
-router.patch("/:id", casosController.updatePartialCaso);
-```
-
-Assim, seu PATCH fica mais flexível e atende melhor as expectativas de uma atualização parcial.
+Essa ausência da declaração do `idBody` é a raiz do problema que faz com que o PUT não funcione corretamente e retorne erros 400 nos seus testes.
 
 ---
 
-### 3. Filtros e ordenações (Bônus) ainda incompletos
+### 2. Validação completa no PUT para casos
 
-Você fez um ótimo esforço para implementar filtros e ordenações nos endpoints, e isso é muito bacana! Porém, notei que alguns filtros, como por status do caso, agente responsável, ou filtragem por palavras-chave, não estão totalmente implementados ou não estão funcionando conforme esperado.
-
-Além disso, filtros de agentes por data de incorporação com ordenação crescente e decrescente também apresentaram dificuldades.
-
-**Por que isso acontece?**  
-Provavelmente, os endpoints GET não estão recebendo ou processando os parâmetros de query (`req.query`) para aplicar esses filtros e ordenações.
-
-**Como melhorar?**  
-No controller, você pode acessar `req.query` e aplicar filtros nos arrays antes de enviar a resposta. Exemplo para filtrar casos por status:
+No seu `completeUpdateCaso` (em `controllers/casosController.js`), o mesmo problema de `idBody` não declarado acontece:
 
 ```js
-const getAllCasos = (req, res, next) => {
-    let casos = casosRepository.findAllCasos();
+const { titulo, descricao, status } = req.body;
 
-    const { status, agente_id, search, sort } = req.query;
-
-    if (status) {
-        casos = casos.filter(caso => caso.status === status);
-    }
-
-    if (agente_id) {
-        casos = casos.filter(caso => caso.agente_id === agente_id);
-    }
-
-    if (search) {
-        const lowerSearch = search.toLowerCase();
-        casos = casos.filter(caso =>
-            caso.titulo.toLowerCase().includes(lowerSearch) ||
-            caso.descricao.toLowerCase().includes(lowerSearch)
-        );
-    }
-
-    // Exemplo de ordenação por título
-    if (sort) {
-        if (sort === 'titulo_asc') {
-            casos.sort((a, b) => a.titulo.localeCompare(b.titulo));
-        } else if (sort === 'titulo_desc') {
-            casos.sort((a, b) => b.titulo.localeCompare(a.titulo));
-        }
-    }
-
-    res.status(200).json(casos);
+if (idBody && idBody !== id) {
+    return next(new APIError(400, "Não é permitido alterar o campo 'id'"));
 }
 ```
 
-Você pode aplicar lógica similar para agentes, filtrando por data de incorporação e ordenando.
+Aqui, você precisa extrair o `id` do corpo da requisição:
+
+```js
+const { id: idBody, titulo, descricao, status } = req.body;
+```
+
+Além disso, você está atualizando o caso no repositório, mas não está atualizando o `agente_id` no PUT para casos. Pelo seu schema do Swagger, o campo `agente_id` é obrigatório no PUT, mas na função `completeUpdateCaso` você não está lidando com ele, nem validando se o agente existe.
+
+**Por que isso importa?** Se o cliente enviar um PUT para atualizar um caso, ele espera atualizar todos os campos obrigatórios, inclusive o `agente_id`. Se você não validar e atualizar esse campo, pode causar inconsistência na sua API.
+
+**Sugestão de melhoria:**
+
+- Extraia `agente_id` do corpo.
+- Valide se `agente_id` está presente e se o agente existe, assim como no POST.
+- Atualize o caso no repositório, incluindo o `agente_id`.
+
+Exemplo:
+
+```js
+const { id: idBody, titulo, descricao, status, agente_id } = req.body;
+
+if (idBody && idBody !== id) {
+    return next(new APIError(400, "Não é permitido alterar o campo 'id'"));
+}
+
+if (!titulo) return next(new APIError(400, "Campo 'titulo' deve ser preenchido"));
+if (!descricao) return next(new APIError(400, "Campo 'descricao' deve ser preenchido"));
+if (!['aberto', 'solucionado'].includes(status)) return next(new APIError(400, "Campo 'status' deve ser 'aberto' ou 'solucionado'"));
+if (!agente_id) return next(new APIError(400, "Campo 'agente_id' deve ser preenchido"));
+
+const agenteExists = agentesRepository.findAgenteById(agente_id);
+if (!agenteExists) return next(new APIError(404, "Agente não encontrado"));
+
+const casoAtualizado = casosRepository.completeUpdateCaso(id, titulo, descricao, status, agente_id);
+```
+
+E no seu `casosRepository.js`, você deve atualizar a função `completeUpdateCaso` para aceitar e atualizar o `agente_id`:
+
+```js
+const completeUpdateCaso = (id, titulo, descricao, status, agente_id) => {
+    const caso = findCasoById(id);
+    
+    caso.titulo = titulo;
+    caso.descricao = descricao;
+    caso.status = status;
+    caso.agente_id = agente_id;
+
+    return caso;
+}
+```
 
 ---
 
-### 4. Organização e Estrutura do Projeto
+### 3. Função `updatePartial` no casosController não está usando o repositório para atualizar
 
-Sua estrutura de diretórios está excelente e segue o padrão esperado:
+Na função `updatePartial` (PATCH para casos), você está modificando diretamente o objeto `caso` retornado do repositório:
 
-```
-.
-├── controllers/
-├── routes/
-├── repositories/
-├── docs/
-├── utils/
-├── server.js
-├── package.json
+```js
+if (titulo !== undefined) {
+    caso.titulo = titulo;
+}
 ```
 
-Isso é fundamental para manter o projeto organizado e escalável. Continue assim!
+Isso funciona porque o objeto é referenciado, mas não está seguindo o padrão que você usou para atualizar via repository (como no PUT). Idealmente, você deveria delegar a atualização parcial para o repository, para manter a lógica centralizada e consistente.
 
 ---
 
-## 📚 Recomendações de Aprendizado para Você
+### 4. Pequeno detalhe no `completeUpdateAgente` — validação de data
 
-- Para aprofundar a validação e tratamento de erros, recomendo este vídeo sobre validação de dados em APIs Node.js/Express:  
-  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
+No PUT para agentes, você não está validando se a `dataDeIncorporacao` é uma data válida e não está no futuro, como faz no POST.
 
-- Para entender melhor como trabalhar com filtros, query params e ordenação, veja este conteúdo sobre manipulação de arrays e requisições:  
+Seria bacana incluir essa validação para manter a coerência:
+
+```js
+if (!isValidDate(dataDeIncorporacao)) {
+    return next(new APIError(400, "Campo 'dataDeIncorporacao' inválido ou no futuro"));
+}
+```
+
+---
+
+### 5. Sobre os filtros e ordenações bônus
+
+Você fez um ótimo trabalho começando a implementar filtros e ordenações, mas os testes bônus indicam que ainda faltam ajustes para funcionar 100%. Como não recebi o código específico dessas implementações, minha dica é revisar cuidadosamente:
+
+- Se os filtros estão sendo aplicados corretamente nos endpoints.
+- Se o sorting está funcionando para as datas de incorporação.
+- Se as mensagens de erro customizadas para filtros inválidos estão claras e consistentes.
+
+Isso vai deixar sua API ainda mais profissional e pronta para o mundo real! 🌎
+
+---
+
+## 📚 Recomendações de estudo para você
+
+Para fortalecer seu entendimento e corrigir os pontos acima, recomendo fortemente os seguintes recursos:
+
+- Para entender melhor o fluxo de requisições, validações e status codes HTTP:  
+  https://youtu.be/RSZHvQomeKE  
+- Para aprofundar no tratamento de erros e validação de dados em APIs Node.js/Express:  
+  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_  
+- Para organizar seu projeto com arquitetura MVC e modularização:  
+  https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH  
+- Para manipulação de arrays e objetos em memória, garantindo atualizações corretas:  
   https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI  
-  https://youtu.be/--TQwiNIw28
-
-- Para garantir que o campo `id` não seja alterado e entender o fluxo correto de atualização em APIs RESTful, este artigo sobre status codes 400 e 404 vai te ajudar bastante:  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404
-
-- Para revisar conceitos de arquitetura MVC e organização de projetos Node.js, este vídeo é excelente:  
-  https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
 
 ---
 
-## 📝 Resumo dos Principais Pontos para Focar
+## ✅ Resumo rápido dos pontos para focar
 
-- 🚫 **Impedir alteração do campo `id` nas atualizações completas (PUT)** para agentes e casos, validando isso no controller.
-- 🔧 **Corrigir o endpoint PATCH dos casos para permitir atualização parcial flexível**, não só do título, mas de outros campos também.
-- 🕵️‍♂️ **Implementar filtros e ordenações nos endpoints GET de agentes e casos**, processando corretamente os parâmetros de query.
-- 💡 Manter e aprimorar o tratamento de erros personalizado para garantir respostas claras e corretas.
-- Continuar explorando a organização modular e documentação Swagger, que já estão muito bem feitas.
+- Corrigir a ausência da declaração da variável `idBody` no PUT para agentes e casos.  
+- Incluir validação e atualização do campo `agente_id` no PUT de casos, tanto no controller quanto no repository.  
+- Validar `dataDeIncorporacao` no PUT de agentes, assim como faz no POST.  
+- Centralizar atualizações parciais no repository para manter padrão e evitar inconsistências.  
+- Revisar e terminar implementação dos filtros e ordenações bônus para casos e agentes.  
 
 ---
 
-andrelobo55, você está no caminho certo e já construiu uma base muito sólida para essa API! 🚓👮‍♂️ Com essas pequenas melhorias, seu projeto ficará ainda mais robusto, flexível e profissional. Continue praticando, explorando e aprimorando — você tem muito potencial! 💪✨
+## Para finalizar...
 
-Se precisar de ajuda para implementar qualquer uma dessas melhorias, é só chamar! Estou aqui para ajudar nessa jornada. 🚀
+André, seu projeto está muito bem encaminhado! 👏 Eu vejo que você já domina os conceitos essenciais e está investindo em funcionalidades avançadas, o que é fantástico. Com esses ajustes que conversamos, sua API vai ficar ainda mais sólida, confiável e alinhada com as melhores práticas.
 
-Abraço forte e até a próxima revisão! 🤗👨‍💻👩‍💻
+Continue firme, mantenha essa curiosidade e capricho, e não hesite em buscar os recursos que te indiquei para fortalecer seu conhecimento. Estou confiante que você vai tirar de letra! 🚀💪
+
+Um abraço de Code Buddy e até a próxima revisão! 🤖❤️
+
+---
+
+Se precisar, só chamar! Estou aqui para ajudar você a crescer cada vez mais! 🌟
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
