@@ -75,6 +75,10 @@ const completeUpdateCaso = (req, res, next) => {
 
         const { titulo, descricao, status } = req.body;
 
+        if (idBody && idBody !== id) {
+            return next(new APIError(400, "Não é permitido alterar o campo 'id'"));
+        }
+
         if (!titulo) {
             return next(new APIError(400, "Campo 'titulo' deve ser preenchido"));
         }

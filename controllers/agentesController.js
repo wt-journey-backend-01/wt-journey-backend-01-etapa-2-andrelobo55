@@ -71,6 +71,10 @@ const completeUpdateAgente = (req, res, next) => {
 
         const { nome, dataDeIncorporacao, cargo } = req.body;
 
+        if (idBody && idBody !== id) {
+            return next(new APIError(400, "Não é permitido alterar o campo 'id'"));
+        }
+
         if (!nome) {
             return next(new APIError(400, "Campo 'nome' deve ser preenchido"));
         }
