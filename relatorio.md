@@ -1,79 +1,100 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 8 créditos restantes para usar o sistema de feedback AI.
+Você tem 7 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para andrelobo55:
 
-Nota final: **73.1/100**
+Nota final: **88.9/100**
 
-# Feedback para andrelobo55 🚓✨
+# Feedback do seu desafio da API do Departamento de Polícia 🚓✨
 
-Olá, andrelobo55! Primeiramente, parabéns pelo empenho e pelo trabalho que você entregou até aqui! 🎉 Construir uma API RESTful completa para um Departamento de Polícia não é tarefa simples, e você já conseguiu implementar várias funcionalidades importantes e estruturou seu projeto de forma organizada. Vamos juntos analisar seu código para destravar os pontos que ainda podem melhorar, ok? 😉
-
----
-
-## 🎯 Pontos Fortes — Você mandou muito bem!
-
-- Sua **estrutura de pastas e arquivos está correta** e segue muito bem o padrão esperado, com `routes`, `controllers`, `repositories` e `docs`. Isso é fundamental para manter o projeto organizado e escalável.  
-- Os endpoints para **agentes** estão muito bem implementados, com todos os métodos HTTP (GET, POST, PUT, PATCH, DELETE) funcionando corretamente, incluindo validações e tratamento de erros.  
-- Você usou classes de erro personalizadas (`APIError`) para facilitar o tratamento de erros no Express, o que demonstra um cuidado muito bom com a qualidade da API.  
-- A integração com o Swagger para documentação está presente e bem configurada nos arquivos de rotas, o que é um diferencial para facilitar o entendimento da API.  
-- Você implementou validações de campos obrigatórios e retornos de status HTTP adequados para o recurso `/agentes`.  
-- Além disso, você já conseguiu implementar filtros e ordenações para agentes e casos (bônus), mesmo que alguns ainda precisem de ajustes, o que mostra iniciativa e vontade de ir além! 👏
+Olá, andrelobo55! Tudo bem? 😄 Primeiro, parabéns pelo esforço e dedicação! Seu projeto está muito bem estruturado e organizado, e isso é um baita diferencial. Vou te dar um panorama geral do que você mandou, destacar os pontos fortes e também onde podemos melhorar para deixar sua API tinindo! Vamos nessa? 🚀
 
 ---
 
-## 🔍 Análise Profunda dos Pontos que Precisam de Atenção
+## 🎉 Pontos Fortes que Merecem Aplausos
 
-### 1. Problemas no endpoint `/casos` — Causa raiz: erros e inconsistências no controller
+- **Arquitetura Modular e Organização:**  
+  Seu projeto está muito bem dividido em rotas, controllers e repositories, exatamente como esperado! Isso facilita a manutenção e escalabilidade do código. Por exemplo, seu `server.js` está limpinho e só importa as rotas e configurações, o que é ótimo:
 
-Percebi que vários testes relacionados ao recurso `/casos` falharam, principalmente nas operações de criação e atualização. Vamos destrinchar isso juntos.
+  ```js
+  app.use("/agentes", agentesRoutes);
+  app.use("/casos", casosRoutes);
+  ```
 
-#### a) Status code incorreto no `createCaso`
+- **Validações e Tratamento de Erros:**  
+  Você implementou diversas validações importantes, como checagem de campos obrigatórios e formato de datas, retornando erros com status 400 e mensagens claras:
 
-No seu `casosController.js`, na função `createCaso`, você tem:
+  ```js
+  if (!nome) {
+      return next(new APIError(400, "Campo 'nome' deve ser preenchido"));
+  }
+  ```
 
-```js
-const caso = casosRepository.createCaso(titulo, descricao, status, agente_id);
+- **Boas Práticas nos Status HTTP:**  
+  Os retornos de status 200, 201 e 204 estão sendo usados corretamente em vários endpoints, o que demonstra que você entende bem o protocolo HTTP.
 
-res.status(202).json(caso);
-```
+- **Implementação dos Métodos HTTP para `/agentes` e `/casos`:**  
+  Você implementou todos os métodos (GET, POST, PUT, PATCH, DELETE) para os dois recursos, o que é excelente!
 
-O status HTTP correto para criação de recurso é **201 (Created)** e não 202 (Accepted). Isso pode causar falha em clientes que esperam o código correto para confirmar a criação.
-
-**Correção sugerida:**
-
-```js
-res.status(201).json(caso);
-```
+- **Bônus Reconhecido:**  
+  Você também tentou implementar filtros, ordenação e mensagens de erro customizadas, o que mostra que foi além do básico. Isso é muito legal e demonstra vontade de crescer! 👏
 
 ---
 
-#### b) Uso incorreto do `next` na captura de erro
+## 🔍 Pontos para Melhorar e Como Ajustar
 
-Ainda na função `createCaso`, seu bloco `catch` faz:
+### 1. Atualização Parcial (PATCH) de Casos Não Está Funcionando
+
+Ao analisar seu `casosController.js`, percebi que você não implementou o método para atualizar parcialmente um caso, ou seja, o PATCH para `/casos/:id` está faltando. Isso explica porque a atualização parcial do caso não funciona.
+
+Veja que, ao contrário do `agentesController.js`, onde você tem o método `updateCargoAgente` para PATCH, em `casosController.js` não encontrei um método equivalente para atualizar parcialmente um caso, como por exemplo o título:
 
 ```js
-catch (error) {
-    next(next);
+// Faltando algo como isso no casosController.js:
+const updateTituloCaso = (req, res, next) => {
+    // implementação
 }
 ```
 
-Aqui você está passando `next` para o `next()`, o que é um erro. O correto é passar o erro capturado para o middleware de erro:
+**Por que isso é importante?**  
+O teste que falha pede justamente para atualizar parcialmente um caso (PATCH), e sem essa função, a rota não consegue responder corretamente.
+
+**Como corrigir?**  
+Você pode criar um método no `casosController.js` parecido com o que fez para agentes, por exemplo:
 
 ```js
-catch (error) {
-    next(error);
+const updateTituloCaso = (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const caso = casosRepository.findCasoById(id);
+
+        if (!caso) {
+            return next(new APIError(404, "Caso não encontrado"));
+        }
+
+        const { titulo } = req.body;
+
+        if (!titulo) {
+            return next(new APIError(400, "Campo 'titulo' deve ser preenchido"));
+        }
+
+        const casoAtualizado = casosRepository.updateTituloCaso(id, titulo);
+
+        res.status(200).json(casoAtualizado);
+    } catch (error) {
+        next(error);
+    }
 }
 ```
 
-Esse erro impede que erros sejam tratados corretamente e pode travar o fluxo da aplicação.
+E garantir que essa função seja exportada e usada na rota PATCH de `/casos/:id`.
 
 ---
 
-#### c) Falta do `new` na criação do erro `APIError` em alguns lugares
+### 2. Retorno 404 na Busca de Caso por ID Inválido Não Está Correto
 
-No método `getCasoById` e `completeUpdateCaso`, você faz:
+No método `getCasoById` do seu `casosController.js`, você tem essa linha:
 
 ```js
 if (!caso) {
@@ -81,9 +102,11 @@ if (!caso) {
 }
 ```
 
-Aqui está faltando o `new` para criar uma instância da classe `APIError`. Sem isso, o erro não será construído corretamente, e o middleware de erro pode não funcionar como esperado.
+Aqui você esqueceu de usar o `new` para instanciar o erro, então o erro não está sendo criado corretamente e o middleware de erro não captura direito.
 
-**Correção:**
+**Como corrigir?**
+
+Troque para:
 
 ```js
 if (!caso) {
@@ -91,142 +114,129 @@ if (!caso) {
 }
 ```
 
-Esse detalhe é crucial para o tratamento correto dos erros.
+Esse detalhe é importante para que o erro seja tratado como uma instância da sua classe `APIError` e o status 404 seja enviado corretamente.
 
 ---
 
-#### d) Atualização completa do caso está chamando método errado no repository
+### 3. Penalidades: Permite Alterar o ID no PUT (Agentes e Casos)
 
-Na função `completeUpdateCaso`, você chama:
+Percebi que no método `completeUpdateAgente` e `completeUpdateCaso` você está atualizando todos os campos do recurso, mas não está protegendo o campo `id`.
 
-```js
-const casoAtualizado = casosRepository.updateTituloCaso(id, titulo, descricao, status);
-```
-
-Mas o método `updateTituloCaso` no repository só atualiza o título, não os demais campos.
-
-O método correto para atualização completa é `completeUpdateCaso`. Então, o correto seria:
+Por exemplo, no `agentesController.js`:
 
 ```js
-const casoAtualizado = casosRepository.completeUpdateCaso(id, titulo, descricao, status);
+const completeUpdateAgente = (req, res, next) => {
+    // ...
+    const { nome, dataDeIncorporacao, cargo } = req.body;
+    const agenteAtualizado = agentesRepository.completeUpdateAgente(id, nome, dataDeIncorporacao, cargo);
+    // ...
+}
 ```
 
-Esse erro causa falha na atualização completa do caso, pois apenas o título é atualizado, e os outros campos são ignorados.
+Se o cliente enviar um campo `id` no corpo da requisição, seu código não está impedindo que o `id` seja alterado, pois no repositório você simplesmente atualiza os campos:
+
+```js
+const completeUpdateAgente = (id, nome, dataDeIncorporacao, cargo) => {
+    const agente = findAgenteById(id);
+    agente.nome = nome;
+    agente.dataDeIncorporacao = dataDeIncorporacao;
+    agente.cargo = cargo;
+    return agente;
+}
+```
+
+Mas se o `id` estiver no corpo, ele não está sendo ignorado explicitamente, e isso pode gerar inconsistências.
+
+**Por que isso é um problema?**  
+O `id` deve ser imutável, pois é o identificador único do recurso. Permitir alteração pode causar problemas de referência e integridade dos dados.
+
+**Como corrigir?**  
+No controller, ignore ou rejeite o campo `id` no corpo da requisição. Por exemplo:
+
+```js
+const { id: idDoBody, nome, dataDeIncorporacao, cargo } = req.body;
+
+if (idDoBody && idDoBody !== id) {
+    return next(new APIError(400, "Não é permitido alterar o campo 'id'"));
+}
+```
+
+Ou simplesmente não permita o `id` no corpo, e no repositório não faça nenhuma alteração no campo `id`.
+
+Faça o mesmo para casos.
 
 ---
 
-### 2. Penalidades: Validação de campos e proteção contra alterações indevidas do ID
+### 4. Filtros e Mensagens de Erro Customizadas (Bônus) Não Implementados Completamente
 
-Notei que seu código permite:
+Vi que você tentou implementar filtros e mensagens de erro customizadas, mas os testes bônus indicam que eles não estão funcionando 100%.
 
-- Registrar agentes com `dataDeIncorporacao` em formato inválido (não está validando o formato `YYYY-MM-DD`).  
-- Registrar agentes com `dataDeIncorporacao` no futuro, o que não faz sentido para esse contexto.  
-- Alterar o campo `id` dos agentes e casos via método PUT, o que não deve ser permitido.
+Por exemplo, não encontrei no seu código nenhum middleware ou lógica para filtrar casos por status, agente responsável ou palavras-chave, nem para ordenar agentes por data de incorporação.
 
-Vamos ver um exemplo para a validação da data no `createAgente`:
+**Dica para implementar filtros:**  
+Você pode usar `req.query` para receber parâmetros e filtrar os arrays em memória no repositório ou controller.
 
-```js
-if (!dataDeIncorporacao) {
-    return next(new APIError(400, "Campo 'dataDeIncorporacao' deve ser preenchido"));
-}
-```
-
-Aqui você valida apenas se o campo existe, mas não valida o formato nem a lógica da data.
-
-**Sugestão para validar o formato e a data não ser futura:**
+Exemplo simples para filtrar casos por status:
 
 ```js
-const dataRegex = /^\d{4}-\d{2}-\d{2}$/;
+const getAllCasos = (req, res, next) => {
+    let casos = casosRepository.findAllCasos();
 
-if (!dataDeIncorporacao || !dataRegex.test(dataDeIncorporacao)) {
-    return next(new APIError(400, "Campo 'dataDeIncorporacao' deve estar no formato YYYY-MM-DD"));
-}
-
-const data = new Date(dataDeIncorporacao);
-const hoje = new Date();
-
-if (data > hoje) {
-    return next(new APIError(400, "Campo 'dataDeIncorporacao' não pode ser uma data futura"));
-}
-```
-
-Além disso, no método `completeUpdateAgente` e `completeUpdateCaso`, você deve garantir que o `id` não seja alterado, ignorando qualquer campo `id` enviado no corpo da requisição.
-
----
-
-### 3. Organização do código e tratamento de erros
-
-Seu projeto está muito bem organizado, mas senti falta de um middleware global para tratamento de erros. Isso ajuda a centralizar o tratamento e evitar repetição.
-
-Exemplo simples que você pode criar em `utils/errorHandler.js`:
-
-```js
-function errorHandler(err, req, res, next) {
-    if (err.name === "API Error") {
-        return res.status(err.status).json({ error: err.message });
+    const { status } = req.query;
+    if (status) {
+        casos = casos.filter(c => c.status === status);
     }
-    console.error(err);
-    res.status(500).json({ error: "Erro interno do servidor" });
+
+    res.status(200).json(casos);
 }
-
-module.exports = errorHandler;
 ```
 
-E no seu `server.js`, após as rotas, adicione:
-
-```js
-const errorHandler = require('./utils/errorHandler');
-
-app.use(errorHandler);
-```
-
-Assim, seu código fica mais limpo e você garante respostas consistentes de erro.
+Para mensagens de erro customizadas, você pode criar um middleware de tratamento de erros (`utils/errorHandler.js`) que intercepta os erros e formata a resposta, deixando a API mais amigável.
 
 ---
 
-### 4. Sobre os filtros e funcionalidades bônus
+### 5. Estrutura de Diretórios Está OK!
 
-Você implementou várias funcionalidades extras, como filtros por status, ordenação e buscas por palavras-chave. Isso é excelente! Porém, notei que alguns testes bônus não passaram, o que indica que essas funcionalidades ainda precisam de refinamento, especialmente para garantir que os filtros respeitem os parâmetros e retornem os dados corretos.
-
-Recomendo revisar a lógica dessas funções e garantir que você está filtrando e ordenando os arrays corretamente, usando métodos como `.filter()`, `.sort()` e `.includes()` para strings.
+Sua estrutura está conforme o esperado, com pastas separadas para controllers, repositories, routes, docs e utils. Isso é muito bom! Só recomendo adicionar o arquivo `utils/errorHandler.js` para centralizar o tratamento de erros — isso ajuda a manter o código limpo e consistente.
 
 ---
 
-## 📚 Recursos que vão te ajudar a evoluir ainda mais
+## 📚 Recursos que Recomendo para Você Dar Uma Olhada
 
-- Para entender melhor como validar dados e garantir integridade, dê uma olhada neste vídeo super didático:  
+- Para entender melhor como proteger o campo `id` e validar dados:  
   https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
 
-- Sobre tratamento de erros e status HTTP, recomendo ler e entender os códigos 400 e 404 aqui:  
-  - https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400  
-  - https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404
+- Para aprender a criar rotas e middlewares no Express.js:  
+  https://expressjs.com/pt-br/guide/routing.html
 
-- Se quiser fortalecer sua base sobre Express.js e rotas, este vídeo é excelente para entender a estrutura MVC e organização do projeto:  
-  https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
-
-- Para manipular arrays e filtros de forma eficiente, veja este conteúdo:  
+- Para implementar filtros usando query params e manipular arrays:  
   https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI
 
----
+- Para criar um middleware de tratamento de erros elegante e personalizado:  
+  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400
 
-## 📝 Resumo dos principais pontos para focar
-
-- 🚦 Corrigir os status HTTP para criação de casos (`201 Created` em vez de `202 Accepted`).  
-- 🛑 Corrigir o uso do `next()` para passar o erro corretamente (usar `next(error)`).  
-- ⚠️ Garantir que a criação dos erros `APIError` use o `new` para instanciar.  
-- 🔄 Corrigir o método chamado para atualização completa do caso (usar `completeUpdateCaso` no lugar de `updateTituloCaso`).  
-- 📅 Implementar validação rigorosa para o campo `dataDeIncorporacao` (formato e data futura).  
-- 🔐 Proteger o `id` de agentes e casos para que não possa ser alterado via PUT.  
-- 📚 Considerar criar um middleware global para tratamento de erros para centralizar a lógica.  
-- 🔍 Revisar e refinar os filtros e funcionalidades bônus para garantir que funcionem corretamente.
+- Para entender os métodos HTTP e status codes:  
+  https://youtu.be/RSZHvQomeKE
 
 ---
 
-Andrelobo55, você está no caminho certo e já tem uma base sólida! Com esses ajustes, sua API vai ficar muito mais robusta e confiável. Continue praticando e explorando as boas práticas de desenvolvimento de APIs RESTful — isso vai te levar longe! 🚀
+## 📝 Resumo dos Principais Pontos para Focar
 
-Se precisar, volte aos recursos que indiquei e não hesite em experimentar no seu código. Estou aqui torcendo pelo seu sucesso! 🙌
+- [ ] **Implementar o método PATCH para `/casos/:id`** e garantir que ele atualize parcialmente o caso corretamente.  
+- [ ] **Corrigir o erro de instanciar `APIError` com `new`** no método `getCasoById`.  
+- [ ] **Impedir alteração do campo `id` nos métodos PUT** para agentes e casos.  
+- [ ] **Adicionar filtros e ordenações nos endpoints de agentes e casos** para melhorar a experiência da API (bônus).  
+- [ ] **Criar um middleware de tratamento de erros centralizado** para mensagens customizadas e consistentes.  
 
-Um abraço forte e até a próxima revisão! 👊😊
+---
+
+## Finalizando
+
+andrelobo55, você está no caminho certo! Seu código mostra que você compreende bem os conceitos básicos e intermediários de APIs REST com Express.js. Com alguns ajustes pontuais, sua API vai ficar ainda mais robusta, segura e profissional.
+
+Continue explorando, testando e aprimorando suas habilidades! Qualquer dúvida, estou aqui para ajudar. 💪😉
+
+Um abraço de Code Buddy! 🤖💙
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
