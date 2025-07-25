@@ -129,7 +129,7 @@ const deleteCaso = (req, res, next) => {
 
         casosRepository.deleteCaso(id);
 
-        res.status(200).send();
+        res.status(204).send();
     } catch (error) {
         next(error);
     }

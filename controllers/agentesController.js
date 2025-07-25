@@ -104,7 +104,7 @@ const updateCargoAgente = (req, res, next) => {
 
         agentesRepository.updateCargoAgente(id, cargo);
 
-        res.status(200).json(agente);
+        res.status(204).json(agente);
     }
     catch (error) {
         next(error);
