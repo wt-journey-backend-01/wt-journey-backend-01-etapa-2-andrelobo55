@@ -1,4 +1,5 @@
 const agentesRepository = require("../repositories/agentesRepository");
+const isValidDate = require("../utils/validDate");
 
 class APIError extends Error {
     constructor(status, message) {
@@ -40,6 +41,10 @@ const createAgente = (req, res, next) => {
 
         if (!dataDeIncorporacao) {
             return next(new APIError(400, "Campo 'dataDeIncorporacao' deve ser preenchido"));
+        }
+
+        if (!isValidDate(dataDeIncorporacao)) {
+            return next(new APIError(400, "Campo 'dataDeIncorporacao' inválido ou no futuro"));
         }
 
         if (!cargo) {
