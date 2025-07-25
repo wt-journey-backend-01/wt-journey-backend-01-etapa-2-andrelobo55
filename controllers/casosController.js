@@ -70,7 +70,7 @@ const completeUpdateCaso = (req, res, next) => {
         const caso = casosRepository.findCasoById(id);
 
         if (!caso) {
-            return next(APIError(404, "Caso não encontrado"));
+            return next(new APIError(404, "Caso não encontrado"));
         }
 
         const { titulo, descricao, status } = req.body;
