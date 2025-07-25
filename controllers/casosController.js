@@ -87,9 +87,9 @@ const completeUpdateCaso = (req, res, next) => {
             return next(new APIError(400, "Campo 'status' deve ser 'aberto' ou 'solucionado'"));
         }
 
-        casosRepository.updateTituloCaso(id, titulo, descricao, status);
+        const casoAtualizado = casosRepository.updateTituloCaso(id, titulo, descricao, status);
 
-        res.status(200).json(caso);
+        res.status(200).json(casoAtualizado);
     } catch (error) {
         next(error);
     }
@@ -110,9 +110,9 @@ const updateTituloCaso = (req, res, next) => {
             return next(new APIError(400, "Campo 'titulo' deve ser preenchido"));
         }
 
-        casosRepository.updateTituloCaso(id, titulo);
+        const casoAtualizado = casosRepository.updateTituloCaso(id, titulo);
 
-        res.status(200).json(caso);
+        res.status(200).json(casoAtualizado);
     } catch (error) {
         next(error);
     }

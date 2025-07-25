@@ -78,9 +78,9 @@ const completeUpdateAgente = (req, res, next) => {
             return next(new APIError(400, "Campo 'cargo' deve ser preenchido"));
         }
 
-        agentesRepository.completeUpdateAgente(id, nome, dataDeIncorporacao, cargo);
+        const agenteAtualizado = agentesRepository.completeUpdateAgente(id, nome, dataDeIncorporacao, cargo);
 
-        res.status(200).json(agente);
+        res.status(200).json(agenteAtualizado);
     }
     catch (error) {
         next(error);
@@ -102,9 +102,9 @@ const updateCargoAgente = (req, res, next) => {
             return next(new APIError(400, "Campo 'cargo' deve ser preenchido"));
         }
 
-        agentesRepository.updateCargoAgente(id, cargo);
+        const agenteAtualizado = agentesRepository.updateCargoAgente(id, cargo);
 
-        res.status(204).json(agente);
+        res.status(200).json(agenteAtualizado);
     }
     catch (error) {
         next(error);
@@ -120,9 +120,9 @@ const deleteAgente = (req, res, next) => {
             return next(new APIError(404, "Agente não encontrado"));
         }
 
-        agentesRepository.deleteAgente(agenteId);
+        agentesRepository.deleteAgente(id);
 
-        res.status(200).send();
+        res.status(204).send();
     }
     catch (error) {
         next(error);
