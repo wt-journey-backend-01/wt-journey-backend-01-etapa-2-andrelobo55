@@ -87,7 +87,7 @@ const completeUpdateCaso = (req, res, next) => {
             return next(new APIError(400, "Campo 'status' deve ser 'aberto' ou 'solucionado'"));
         }
 
-        const casoAtualizado = casosRepository.updateTituloCaso(id, titulo, descricao, status);
+        const casoAtualizado = casosRepository.completeUpdateCaso(id, titulo, descricao, status);
 
         res.status(200).json(casoAtualizado);
     } catch (error) {
