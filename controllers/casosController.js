@@ -119,7 +119,7 @@ const updateTitulo = (req, res, next) => {
             return next(new APIError(400, "Campo 'titulo' é obrigatório"));
         }
 
-        const casoAtualizado = caso.titulo = casosRepository.updatePartial(titulo);
+        const casoAtualizado = casosRepository.updateTitulo(id, titulo);
 
         res.status(200).json(casoAtualizado);
     } catch (error) {
