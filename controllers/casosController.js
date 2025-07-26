@@ -123,7 +123,7 @@ const updatePartialCaso = (req, res, next) => {
             return next(new APIError(400, "Campo 'status' deve ser 'aberto' ou 'solucionado'"));
         }
 
-        if (!campos.descricao !== undefined && campos.descricao.trim() === '') {
+        if (campos.descricao !== undefined && campos.descricao.trim() === '') {
             return next(new APIError(400, "Campo 'descricao' não pode estar vazio"));
         }
 
