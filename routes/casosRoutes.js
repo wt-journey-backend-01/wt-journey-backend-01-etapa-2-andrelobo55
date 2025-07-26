@@ -135,7 +135,7 @@ router.put("/:id", casosController.completeUpdateCaso);
  *       404:
  *         description: Caso não encontrado ou campo não preenchido
  */
-router.patch("/:id", casosController.updatePartial);
+router.patch("/:id", casosController.updateTitulo);
 
 /**
  * @swagger

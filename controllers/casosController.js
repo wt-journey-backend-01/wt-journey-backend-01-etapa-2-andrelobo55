@@ -104,7 +104,7 @@ const completeUpdateCaso = (req, res, next) => {
     }
 }
 
-const updatePartial = (req, res, next) => {
+const updateTitulo = (req, res, next) => {
     try {
         const { id } = req.params;
         const caso = casosRepository.findCasoById(id);
@@ -113,24 +113,15 @@ const updatePartial = (req, res, next) => {
             return next(new APIError(404, "Caso não encontrado"));
         }
 
-        const { titulo, descricao, status } = req.body;
+        const { titulo } = req.body;
 
-        if (titulo !== undefined) {
-            caso.titulo = titulo;
+        if (!titulo ) {
+            return next(new APIError(400, "Campo 'titulo' é obrigatório"));
         }
 
-        if (descricao !== undefined) {
-            caso.descricao = descricao;
-        }
+        const casoAtualizado = caso.titulo = casosRepository.updatePartial(titulo);
 
-        if (status !== undefined) {
-            if (!['aberto', 'solucionado'].includes(status)) {
-                return next(new APIError(400, "Campo 'status' deve ser 'aberto' ou 'solucionado'"));
-            }
-            caso.status = status;
-        }
-
-        res.status(200).json(caso);
+        res.status(200).json(casoAtualizado);
     } catch (error) {
         next(error);
     }
@@ -158,6 +149,6 @@ module.exports = {
     getCasoById,
     createCaso,
     completeUpdateCaso,
-    updatePartial,
+    updateTitulo,
     deleteCaso
 }
