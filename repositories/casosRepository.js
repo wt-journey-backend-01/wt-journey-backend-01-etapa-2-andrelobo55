@@ -28,12 +28,13 @@ const findCasoById = (id) => {
 }
 
 // Função que busca o caso com id específico e muda todos os dados, exceto id's
-const completeUpdateCaso = (id, titulo, descricao, status) => {
+const completeUpdateCaso = (id, titulo, descricao, status, agente_id) => {
     const caso = findCasoById(id);
     
     caso.titulo = titulo;
     caso.descricao = descricao;
     caso.status = status;
+    caso.agente_id = agente_id;
 
     return caso;
 }
