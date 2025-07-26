@@ -39,7 +39,7 @@ const completeUpdateCaso = (id, titulo, descricao, status, agente_id) => {
     return caso;
 }
 
-// Função que busca o caso com id específico e muda apenas o título
+// Função que busca o caso com id específico e muda algum campo
 const updatePartialCaso = (id, camposAtualizados) => {
     const caso = findCasoById(id);
 

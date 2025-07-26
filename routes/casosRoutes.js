@@ -111,7 +111,7 @@ router.put("/:id", casosController.completeUpdateCaso);
  * @swagger
  * /casos/{id}:
  *   patch:
- *     summary: Atualizar o titulo de um caso específico pelo id
+ *     summary: Atualizar parcialmente um caso específico pelo ID
  *     tags: [Casos]
  *     parameters:
  *       - name: id
@@ -119,21 +119,35 @@ router.put("/:id", casosController.completeUpdateCaso);
  *         required: true
  *         schema:
  *           type: string
+ *         description: ID do caso a ser atualizado
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [titulo]
  *             properties:
  *               titulo:
  *                 type: string
+ *                 description: Novo título do caso
+ *               descricao:
+ *                 type: string
+ *                 description: Nova descrição do caso
+ *               status:
+ *                 type: string
+ *                 enum: [aberto, solucionado]
+ *                 description: Novo status do caso
+ *             example:
+ *               titulo: Novo título atualizado
+ *               descricao: Atualização parcial da descrição
+ *               status: solucionado
  *     responses:
  *       200:
- *         description: Titulo de caso atualizado com sucesso
+ *         description: Caso atualizado com sucesso
+ *       400:
+ *         description: Requisição inválida (ex: tentativa de alterar o campo 'id' ou 'agente_id')
  *       404:
- *         description: Caso não encontrado ou campo não preenchido
+ *         description: Caso não encontrado
  */
 router.patch("/:id", casosController.updatePartialCaso);
 

@@ -123,16 +123,16 @@ const updatePartialCaso = (req, res, next) => {
             return next(new APIError(400, "Campo 'status' deve ser 'aberto' ou 'solucionado'"));
         }
 
-        if (!campos.descricao) {
-            return next(new APIError(400, "Campo 'descricao' é obrigatório"));
+        if (!campos.descricao !== undefined && campos.descricao.trim() === '') {
+            return next(new APIError(400, "Campo 'descricao' não pode estar vazio"));
         }
 
-        if (campos.agente_id !== caso.agente_id) {
-            return next(new APIError(400, "Campo 'agente_id' Não deve ser alterado."));
+        if (campos.titulo !== undefined && campos.titulo.trim() === '') {
+            return next(new APIError(400, "Campo 'titulo' não pode estar vazio"));
         }
         
-        if (!campos.titulo ) {
-            return next(new APIError(400, "Campo 'titulo' é obrigatório"));
+        if (campos.agente_id !== undefined && campos.agente_id !== caso.agente_id) {
+            return next(new APIError(400, "Campo 'agente_id' não deve ser alterado."));
         }
 
         const casoAtualizado = casosRepository.updatePartialCaso(id, campos);
