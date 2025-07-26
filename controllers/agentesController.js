@@ -83,6 +83,10 @@ const completeUpdateAgente = (req, res, next) => {
             return next(new APIError(400, "Campo 'dataDeIncorporacao' deve ser preenchido"));
         }
 
+        if (!isValidDate(dataDeIncorporacao)) {
+            return next(new APIError(400, "Campo 'dataDeIncorporacao' inválida ou no futuro."));
+        }
+
         if (!cargo) {
             return next(new APIError(400, "Campo 'cargo' deve ser preenchido"));
         }
