@@ -104,7 +104,7 @@ const completeUpdateCaso = (req, res, next) => {
     }
 }
 
-const updateTitulo = (req, res, next) => {
+const updatePartialCaso = (req, res, next) => {
     try {
         const { id } = req.params;
         const caso = casosRepository.findCasoById(id);
@@ -113,13 +113,29 @@ const updateTitulo = (req, res, next) => {
             return next(new APIError(404, "Caso não encontrado"));
         }
 
-        const { titulo } = req.body;
+        const campos = req.body;
 
-        if (!titulo ) {
+         if (campos.id && campos.id !== id) {
+            return next(new APIError(400, "Não é permitido alterar o campo 'id'"));
+        }
+
+        if (campos.status && !['aberto', 'solucionado'].includes(campos.status)) {
+            return next(new APIError(400, "Campo 'status' deve ser 'aberto' ou 'solucionado'"));
+        }
+
+        if (!campos.descricao) {
+            return next(new APIError(400, "Campo 'descricao' é obrigatório"));
+        }
+
+        if (campos.agente_id !== caso.agente_id) {
+            return next(new APIError(400, "Campo 'agente_id' Não deve ser alterado."));
+        }
+        
+        if (!campos.titulo ) {
             return next(new APIError(400, "Campo 'titulo' é obrigatório"));
         }
 
-        const casoAtualizado = casosRepository.updateTitulo(id, titulo);
+        const casoAtualizado = casosRepository.updatePartialCaso(id, campos);
 
         res.status(200).json(casoAtualizado);
     } catch (error) {
@@ -149,6 +165,6 @@ module.exports = {
     getCasoById,
     createCaso,
     completeUpdateCaso,
-    updateTitulo,
+    updatePartialCaso,
     deleteCaso
 }

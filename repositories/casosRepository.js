@@ -40,10 +40,14 @@ const completeUpdateCaso = (id, titulo, descricao, status, agente_id) => {
 }
 
 // Função que busca o caso com id específico e muda apenas o título
-const updateTitulo = (id, titulo) => {
+const updatePartialCaso = (id, camposAtualizados) => {
     const caso = findCasoById(id);
 
-    caso.titulo = titulo;
+    Object.keys(camposAtualizados).forEach(campo => {
+        if (campo !== 'id' && caso.hasOwnProperty(campo)) {
+            caso[campo] = camposAtualizados[campo];
+        }
+    })
 
     return caso;
 }
@@ -60,6 +64,6 @@ module.exports = {
     findCasoById,
     createCaso,
     completeUpdateCaso,
-    updateTitulo,
+    updatePartialCaso,
     deleteCaso
 }
